@@ -1,22 +1,38 @@
 const { ethers } = require("hardhat");
 
-async function main() {
-    const PixelBrainerCollection = await ethers.getContractFactory("PixelBrainerCollection");
-  
-    // Define el maxSupply del contrato
-    const maxSupply = 100;
-    // Despliega el contrato con el maxSupply especificado
-    const contract = await PixelBrainerCollection.deploy(maxSupply);
-    console.log("YOUR CONTRACT", contract);
-    // Espera a que la transacción de despliegue se confirme
-    // await contract.deployTransaction.wait();
-  
-    // console.log("Contract deployed to address:", contract.address);
+async function deploy() {
+  // Obtienes la fábrica del contrato
+  const PixelBrainerCollection = await ethers.getContractFactory(
+    "PixelBrainerNFTCollection"
+  );
+
+  // Parámetros para el constructor (personalízalos según tu caso)
+  const maxSupply = 10; // Número total de NFTs
+  const mintPrice = ethers.parseEther("0.1"); // Precio del mint en Ether
+  const transferFeePercentage = 5; // Porcentaje de fee de transferencia
+
+  // Array de URIs para inicializar
+  const initial_uris = Array.from(
+    { length: maxSupply },
+    (_, i) =>
+      `https://braineronbase.com/ipfs/QmeBaKmJaqx3i1T8cBBaTT1k84wYVvncTHpXL2LVN84sW4/${i}.json`
+  );
+  console.log("URIs iniciales:", initial_uris);
+  // Despliegas el contrato con los parámetros necesarios
+  const contract = await PixelBrainerCollection.deploy(
+    maxSupply,
+    mintPrice,
+    transferFeePercentage,
+    initial_uris
+  );
+
+  console.log("Contrato desplegado en:", contract);
 }
-  
-main()
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
+
+// Ejecuta la función de despliegue
+deploy()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

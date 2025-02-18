@@ -1,6 +1,6 @@
 require("dotenv").config();
 require("@nomicfoundation/hardhat-ethers");
-
+require("hardhat-deploy");
 
 module.exports = {
   solidity: {
@@ -15,7 +15,7 @@ module.exports = {
   },
   networks: {
     ethTestnet: {
-      url: 'https://rpc.ankr.com/eth_sepolia',
+      url: "https://rpc.ankr.com/eth_sepolia",
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
     baseTestnet: {
