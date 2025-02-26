@@ -8,7 +8,7 @@ async function deploy() {
 
   // Parámetros para el constructor (personalízalos según tu caso)
   const maxSupply = 10; // Número total de NFTs
-  const mintPrice = ethers.parseEther("0.1"); // Precio del mint en Ether
+  const mintPrice = ethers.parseEther("0.001"); // Precio del mint en Ether
   const transferFeePercentage = 5; // Porcentaje de fee de transferencia
 
   // Array de URIs para inicializar
