@@ -20,6 +20,8 @@ contract BrainerPreSale {
     uint256 public totalETHRaised;
     bool public isSaleActive = true;
 
+    mapping(address => bool) public hasPurchased; // Mapeo para verificar si la dirección ya compró
+
     event TokensPurchased(
         address indexed buyer,
         uint256 ethAmount,
@@ -33,6 +35,14 @@ contract BrainerPreSale {
         _;
     }
 
+    modifier canBuy() {
+        require(
+            !hasPurchased[msg.sender],
+            "You have already participated in the sale."
+        );
+        _;
+    }
+
     constructor(address _tokenAddress) {
         owner = msg.sender;
         brainerToken = IERC20(_tokenAddress);
@@ -43,7 +53,7 @@ contract BrainerPreSale {
         buyTokens();
     }
 
-    function buyTokens() public payable {
+    function buyTokens() public payable canBuy {
         require(isSaleActive, "Pre-sale is not active");
         require(msg.value >= minContribution, "Contribution is below minimum");
         require(msg.value <= maxContribution, "Contribution exceeds maximum");
@@ -54,11 +64,14 @@ contract BrainerPreSale {
         require(tokenAmount > 0, "Invalid token amount");
         require(
             contractTokenBalance >= tokenAmount,
-            "Not enough tokens in contract, the presale is over"
+            "Not enough tokens in contract to fulfill this purchase"
         );
 
         // Transfer the tokens to the buyer
         brainerToken.transfer(msg.sender, tokenAmount);
+
+        // Mark this address as having purchased
+        hasPurchased[msg.sender] = true;
 
         totalETHRaised += msg.value;
 

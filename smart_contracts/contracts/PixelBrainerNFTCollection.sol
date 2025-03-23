@@ -114,7 +114,6 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         uint256 start,
         uint256 end
     ) public view returns (string[] memory) {
-        require(start <= end, "Start must be less than or equal to end");
         require(
             end <= currentTokenId,
             "End must be less than or equal to currentTokenId"
