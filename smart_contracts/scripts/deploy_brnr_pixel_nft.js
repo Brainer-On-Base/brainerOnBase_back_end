@@ -3,23 +3,21 @@ const { ethers } = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
+  const balance = await deployer.provider.getBalance(deployer.address);
+
   console.log(
     "Deploying PixelBrainerNFTCollection with account:",
     deployer.address
   );
-  console.log(
-    "Account balance:",
-    ethers.utils.formatEther(await deployer.getBalance()),
-    "ETH"
-  );
+  console.log("Account balance:", ethers.formatEther(balance), "ETH");
 
   const PixelBrainerCollection = await ethers.getContractFactory(
     "PixelBrainerNFTCollection"
   );
 
-  const maxSupply = 10;
-  const mintPrice = ethers.parseEther("0.001");
-  const transferFeePercentage = 5;
+  const maxSupply = 50;
+  const mintPrice = ethers.parseEther("0.001"); // 0.001 ETH
+  const transferFeePercentage = 0;
 
   const initial_uris = Array.from(
     { length: maxSupply },
@@ -36,12 +34,9 @@ async function main() {
     initial_uris
   );
 
-  await pixelBrainer.deployed();
+  await pixelBrainer.waitForDeployment();
 
-  console.log(
-    "✅ PixelBrainerNFTCollection deployed at:",
-    pixelBrainer.address
-  );
+  console.log("✅ PixelBrainerNFTCollection deployed at:", pixelBrainer.target);
 }
 
 main()

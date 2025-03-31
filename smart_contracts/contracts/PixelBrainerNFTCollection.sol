@@ -12,9 +12,9 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
     uint256 public immutable transferFeePercentage;
 
     mapping(uint256 => string) public _tokenURIs;
-    mapping(string => bool) private _existingURIs; // Nuevo mapping para rastrear URIs existentes
-    mapping(uint256 => string) private _availableURIs; // Nuevo mapping para URIs disponibles
-    mapping(address => uint256) public mintedTokensCount; // Nuevo mapping para rastrear la cantidad de NFTs minteados por cada dirección
+    mapping(string => bool) private _existingURIs;
+    mapping(uint256 => string) private _availableURIs;
+    mapping(address => uint256) public mintedTokensCount;
 
     event NFTMinted(address indexed recipient, uint256 tokenId, string uri);
 
@@ -49,12 +49,12 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
     }
 
     function mintNFT(address recipient) public payable {
+        require(tx.origin == msg.sender, "Contracts not allowed");
         require(currentTokenId < maxSupply, "Max supply reached");
         require(mintedTokensCount[recipient] < 2, "Max 2 NFTs per wallet");
         uint256 currentMintPrice = getMintPrice();
         require(msg.value >= currentMintPrice, "Insufficient funds");
 
-        // Seleccionar una URI aleatoria
         uint256 randomIndex = uint256(
             keccak256(
                 abi.encodePacked(
@@ -66,7 +66,6 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         ) % (maxSupply - currentTokenId);
         string memory uri = _availableURIs[randomIndex];
 
-        // Mover la última URI disponible a la posición del índice seleccionado
         _availableURIs[randomIndex] = _availableURIs[
             maxSupply - currentTokenId - 1
         ];
@@ -75,23 +74,17 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         currentTokenId++;
         _safeMint(recipient, currentTokenId);
         _tokenURIs[currentTokenId] = uri;
-        _existingURIs[uri] = true; // Marcar el URI como utilizado
-        mintedTokensCount[recipient]++; // Incrementar el contador de NFTs minteados por la dirección
+        _existingURIs[uri] = true;
+        mintedTokensCount[recipient]++;
 
         emit NFTMinted(recipient, currentTokenId, uri);
-    }
-
-    function tokenExists(uint256 tokenId) public view returns (bool) {
-        // Si ownerOf no lanza un error, significa que el token existe
-        address owner = ownerOf(tokenId);
-        return owner != address(0); // Si el propietario es la dirección 0, no existe
     }
 
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
         require(
-            tokenExists(tokenId),
+            bytes(_tokenURIs[tokenId]).length > 0,
             "ERC721Metadata: URI query for nonexistent token"
         );
         return _tokenURIs[tokenId];
@@ -105,7 +98,6 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         recipient.transfer(balance);
     }
 
-    // Nueva función para validar si un URI ya existe
     function isURIAvailable(string memory uri) public view returns (bool) {
         return !_existingURIs[uri];
     }
