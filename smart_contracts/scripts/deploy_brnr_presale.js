@@ -1,28 +1,32 @@
 const { ethers } = require("hardhat");
+const {
+  BRAINER_TOKEN_ADDRESS,
+  PIXEL_BRAINER_COLLECCTION_ADDRESS,
+} = require("../CONSTANTS");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with account:", deployer.address);
 
-  console.log("Deploying BrainerPreSale with account:", deployer.address);
-  console.log(
-    "Account balance:",
-    ethers.utils.formatEther(await deployer.getBalance()),
-    "ETH"
+  // Usamos el nombre calificado completo para evitar el error HH701
+  const brnrToken = await ethers.getContractAt(
+    "@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20",
+    BRAINER_TOKEN_ADDRESS
   );
 
-  const tokenAddress = "0x373ED1C41e5327a7aE07F7Ac50a6f1D1A73089DE";
+  const preSaleFactory = await ethers.getContractFactory("BrainerPreSale");
 
-  const BrainerPreSale = await ethers.getContractFactory("BrainerPreSale");
-  const preSale = await BrainerPreSale.deploy(tokenAddress);
+  const preSale = await preSaleFactory.deploy(
+    BRAINER_TOKEN_ADDRESS,
+    PIXEL_BRAINER_COLLECCTION_ADDRESS
+  );
+  await preSale.waitForDeployment();
 
-  await preSale.deployed();
-
-  console.log("✅ BrainerPreSale deployed at:", preSale.address);
+  const preSaleAddress = await preSale.getAddress();
+  console.log("BrainerPreSale deployed at:", preSaleAddress);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error("❌ Error:", error);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
