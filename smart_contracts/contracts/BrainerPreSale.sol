@@ -13,14 +13,13 @@ contract BrainerPreSale {
     address public owner;
     IERC20 public brainerToken;
 
-    uint256 public rate = 4000000; // 1 ETH = 4,000,000 BRNR (pre-sale)
+    uint256 public rate = 4000000; // 1 ETH = 4,000,000 BRNR
     uint256 public minContribution = 0.02 ether;
     uint256 public maxContribution = 5 ether;
 
     uint256 public totalETHRaised;
-    bool public isSaleActive = true;
 
-    mapping(address => bool) public hasPurchased; // Mapeo para verificar si la dirección ya compró
+    mapping(address => uint256) public totalContributed;
 
     event TokensPurchased(
         address indexed buyer,
@@ -35,28 +34,21 @@ contract BrainerPreSale {
         _;
     }
 
-    modifier canBuy() {
-        require(
-            !hasPurchased[msg.sender],
-            "You have already participated in the sale."
-        );
-        _;
-    }
-
     constructor(address _tokenAddress) {
         owner = msg.sender;
         brainerToken = IERC20(_tokenAddress);
     }
 
-    // Fallback function in case someone sends ETH directly
     receive() external payable {
         buyTokens();
     }
 
-    function buyTokens() public payable canBuy {
-        require(isSaleActive, "Pre-sale is not active");
-        require(msg.value >= minContribution, "Contribution is below minimum");
-        require(msg.value <= maxContribution, "Contribution exceeds maximum");
+    function buyTokens() public payable {
+        require(msg.value >= minContribution, "Contribution below minimum");
+        require(
+            totalContributed[msg.sender] + msg.value <= maxContribution,
+            "Exceeds max allowed per address"
+        );
 
         uint256 tokenAmount = msg.value * rate;
         uint256 contractTokenBalance = brainerToken.balanceOf(address(this));
@@ -64,40 +56,26 @@ contract BrainerPreSale {
         require(tokenAmount > 0, "Invalid token amount");
         require(
             contractTokenBalance >= tokenAmount,
-            "Not enough tokens in contract to fulfill this purchase"
+            "Not enough tokens in contract"
         );
 
-        // Transfer the tokens to the buyer
-        brainerToken.transfer(msg.sender, tokenAmount);
-
-        // Mark this address as having purchased
-        hasPurchased[msg.sender] = true;
-
+        totalContributed[msg.sender] += msg.value;
         totalETHRaised += msg.value;
 
+        brainerToken.transfer(msg.sender, tokenAmount);
         emit TokensPurchased(msg.sender, msg.value, tokenAmount);
     }
 
-    // Owner withdraws collected ETH (usually to add liquidity or fund the project)
     function withdrawETH(uint256 amount) external onlyOwner {
         require(address(this).balance >= amount, "Insufficient ETH balance");
         payable(owner).transfer(amount);
-
         emit WithdrawETH(msg.sender, amount);
     }
 
-    // Owner can withdraw remaining unsold tokens if sale ends
     function withdrawRemainingTokens(uint256 amount) external onlyOwner {
         uint256 contractTokenBalance = brainerToken.balanceOf(address(this));
-        require(amount <= contractTokenBalance, "Amount exceeds token balance");
-
+        require(amount <= contractTokenBalance, "Amount exceeds balance");
         brainerToken.transfer(owner, amount);
-
         emit WithdrawTokens(msg.sender, amount);
-    }
-
-    // Toggle sale active/inactive
-    function setSaleActive(bool _isActive) external onlyOwner {
-        isSaleActive = _isActive;
     }
 }
