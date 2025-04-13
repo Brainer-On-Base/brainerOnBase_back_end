@@ -3,18 +3,17 @@ const express = require("express");
 const router = express.Router();
 
 //ANCHOR - Imports
-const SmartContractController = require("../controllers/SmartContractController");
+const SmartContractController = require("../controllers/smartContractController");
+const nftController = require("../controllers/NftController");
 
 //ANCHOR - Module Export
 module.exports = function () {
   // AUTH
 
-  // SMART CONTRACTS
-  router.get("/api/contracts", SmartContractController.getAllContracts); // Obtener todos los contratos
-  router.get("/api/contracts/:id", SmartContractController.getContractById); // Obtener un contrato específico
-  router.post("/api/contracts", SmartContractController.addContract); // Agregar un nuevo contrato
-  router.put("/api/contracts/:id", SmartContractController.updateContract); // Actualizar un contrato
-  router.delete("/api/contracts/:id", SmartContractController.deleteContract); // Eliminar un contrato
+  // NFTS
+  router.get("/api/nfts", nftController.getAllNFTs); // Obtener todos los NFTs
+  router.get("/api/nfts/:id", nftController.getNFTById); // Obtener un NFT específico
+  router.post("/api/nfts/minted", nftController.createOrUpdateNFT); // Crear o actualizar un NFT
 
   return router;
 };
