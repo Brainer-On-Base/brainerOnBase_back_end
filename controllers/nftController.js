@@ -9,7 +9,7 @@ const { RPC_NODE_URL } = require("../CONSTANTS");
 const provider = new ethers.JsonRpcProvider(RPC_NODE_URL);
 const nftContract = new ethers.Contract(
   BRAINER_BPC_NFT_MINT_CONTRACT_ADDRESS,
-  BRAINER_BPC_NFT_ABI_CONTRACT,
+  BRAINER_BPC_NFT_ABI_CONTRACT.abi,
   provider
 );
 

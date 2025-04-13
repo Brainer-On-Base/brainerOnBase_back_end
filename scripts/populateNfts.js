@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const NFT = require("../models/nftSchema");
 
 const MONGO_URI = "mongodb://localhost:27017/brainerOnBase";
-const TOTAL = 8000;
+const TOTAL = 25;
 
 async function connectDB() {
   await mongoose.connect(MONGO_URI, {
