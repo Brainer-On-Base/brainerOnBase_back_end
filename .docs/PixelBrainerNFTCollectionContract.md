@@ -102,4 +102,4 @@ const contract = await factory.deploy(
 
 ### 🔐 Audited by: MasterBrainer & ChatGPT v4 😎
 
-_Ready for production. Launch that beauty._
+_Engineered for brainer believers. Mint it or miss it._
