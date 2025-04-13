@@ -53,4 +53,12 @@ contract BrainerToken is ERC20, ERC20Burnable, Ownable {
     function burnFromGame(address account, uint256 amount) external onlyOwner {
         _burn(account, amount);
     }
+
+    receive() external payable {
+        revert("No ETH allowed");
+    }
+
+    fallback() external payable {
+        revert("Invalid call");
+    }
 }

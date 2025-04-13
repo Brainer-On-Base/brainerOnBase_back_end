@@ -105,4 +105,12 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
     function isURIAvailable(string memory uri) public view returns (bool) {
         return !_existingURIs[uri];
     }
+
+    receive() external payable {
+        revert("No ETH accepted");
+    }
+
+    fallback() external payable {
+        revert("Function does not exist");
+    }
 }
