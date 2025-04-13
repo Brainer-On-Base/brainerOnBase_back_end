@@ -7,6 +7,11 @@ interface IERC20 {
         uint256 amount
     ) external returns (bool);
     function balanceOf(address account) external view returns (uint256);
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 }
 
 interface INFTCollection {
@@ -58,7 +63,7 @@ contract BrainerPreSale {
     }
 
     fallback() external {
-        revert("Don't send BRNR tokens directly");
+        revert("Don't send tokens directly");
     }
 
     function buyTokens() public payable {
@@ -103,15 +108,8 @@ contract BrainerPreSale {
         emit WithdrawETH(msg.sender, amount);
     }
 
-    function withdrawRemainingTokens(uint256 amount) external onlyOwner {
-        uint256 contractTokenBalance = brainerToken.balanceOf(address(this));
-        uint256 reservedForClaim = CLAIM_SUPPLY - nftClaimedTotal;
-        uint256 withdrawable = contractTokenBalance > reservedForClaim
-            ? contractTokenBalance - reservedForClaim
-            : 0;
-
-        require(amount <= withdrawable, "Amount exceeds withdrawable tokens");
-        brainerToken.transfer(owner, amount);
-        emit WithdrawTokens(msg.sender, amount);
+    function depositTokens(uint256 amount) external onlyOwner {
+        require(amount > 0, "Amount must be greater than 0");
+        brainerToken.transferFrom(msg.sender, address(this), amount);
     }
 }

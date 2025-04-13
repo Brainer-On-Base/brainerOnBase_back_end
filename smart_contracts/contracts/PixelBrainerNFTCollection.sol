@@ -35,6 +35,10 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         }
     }
 
+    function isMintingActive() public view returns (bool) {
+        return currentTokenId < maxSupply;
+    }
+
     function getMintPrice() public view returns (uint256) {
         uint256 phase = currentTokenId / (maxSupply / 4);
         if (phase == 0) {
@@ -49,8 +53,8 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
     }
 
     function mintNFT(address recipient) public payable {
+        require(isMintingActive(), "Minting is finished");
         require(tx.origin == msg.sender, "Contracts not allowed");
-        require(currentTokenId < maxSupply, "Max supply reached");
         require(mintedTokensCount[recipient] < 2, "Max 2 NFTs per wallet");
         uint256 currentMintPrice = getMintPrice();
         require(msg.value >= currentMintPrice, "Insufficient funds");
@@ -100,21 +104,5 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
 
     function isURIAvailable(string memory uri) public view returns (bool) {
         return !_existingURIs[uri];
-    }
-
-    function getTokenURIs(
-        uint256 start,
-        uint256 end
-    ) public view returns (string[] memory) {
-        require(
-            end <= currentTokenId,
-            "End must be less than or equal to currentTokenId"
-        );
-
-        string[] memory uris = new string[](end - start + 1);
-        for (uint256 i = start; i <= end; i++) {
-            uris[i - start] = _tokenURIs[i];
-        }
-        return uris;
     }
 }
