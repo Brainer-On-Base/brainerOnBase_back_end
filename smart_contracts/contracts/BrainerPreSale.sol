@@ -46,6 +46,7 @@ contract BrainerPreSale {
     event WithdrawETH(address indexed admin, uint256 amount);
     event WithdrawTokens(address indexed admin, uint256 amount);
     event NFTClaimed(address indexed user, uint256 tokenId, uint256 amount);
+    event TokensDeposited(address indexed from, uint256 amount); // ✅ NUEVO
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner");
@@ -84,7 +85,11 @@ contract BrainerPreSale {
         totalETHRaised += msg.value;
         tokensSold += tokenAmount;
 
-        brainerToken.transfer(msg.sender, tokenAmount);
+        require(
+            brainerToken.transfer(msg.sender, tokenAmount),
+            "Token transfer failed"
+        );
+
         emit TokensPurchased(msg.sender, msg.value, tokenAmount);
     }
 
@@ -97,7 +102,11 @@ contract BrainerPreSale {
 
         nftClaimed[tokenId] = true;
         nftClaimedTotal += TOKENS_PER_NFT;
-        brainerToken.transfer(msg.sender, TOKENS_PER_NFT);
+
+        require(
+            brainerToken.transfer(msg.sender, TOKENS_PER_NFT),
+            "Token transfer failed"
+        );
 
         emit NFTClaimed(msg.sender, tokenId, TOKENS_PER_NFT);
     }
@@ -110,6 +119,10 @@ contract BrainerPreSale {
 
     function depositTokens(uint256 amount) external onlyOwner {
         require(amount > 0, "Amount must be greater than 0");
-        brainerToken.transferFrom(msg.sender, address(this), amount);
+        require(
+            brainerToken.transferFrom(msg.sender, address(this), amount),
+            "Token transfer failed"
+        );
+        emit TokensDeposited(msg.sender, amount); // ✅ NUEVO
     }
 }
