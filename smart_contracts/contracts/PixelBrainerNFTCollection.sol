@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -18,6 +18,11 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
 
     event NFTMinted(address indexed recipient, uint256 tokenId, string uri);
 
+    /// @notice Contract constructor for Pixel Brainer NFT Collection
+    /// @param _maxSupply Maximum number of NFTs that can be minted
+    /// @param _mintPrice Initial mint price in wei
+    /// @param _transferFeePercentage Fee percentage applied on transfers (reserved for future logic)
+    /// @param uris List of metadata URIs, must match maxSupply
     constructor(
         uint256 _maxSupply,
         uint256 _mintPrice,
@@ -35,10 +40,13 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         }
     }
 
+    /// @notice Check if minting is still active (not sold out)
     function isMintingActive() public view returns (bool) {
         return currentTokenId < maxSupply;
     }
 
+    /// @notice Calculates current mint price depending on supply phase
+    /// @return Mint price in wei
     function getMintPrice() public view returns (uint256) {
         uint256 phase = currentTokenId / (maxSupply / 4);
         if (phase == 0) {
@@ -52,6 +60,8 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         }
     }
 
+    /// @notice Mints a new NFT to the recipient, with randomized metadata URI
+    /// @param recipient Address to receive the NFT
     function mintNFT(address recipient) public payable {
         require(isMintingActive(), "Minting is finished");
         require(tx.origin == msg.sender, "Contracts not allowed");
@@ -59,6 +69,7 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         uint256 currentMintPrice = getMintPrice();
         require(msg.value >= currentMintPrice, "Insufficient funds");
 
+        // Random URI assignment from the remaining pool
         uint256 randomIndex = uint256(
             keccak256(
                 abi.encodePacked(
@@ -70,6 +81,7 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         ) % (maxSupply - currentTokenId);
         string memory uri = _availableURIs[randomIndex];
 
+        // Swap-and-pop to avoid duplicates
         _availableURIs[randomIndex] = _availableURIs[
             maxSupply - currentTokenId - 1
         ];
@@ -84,6 +96,8 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         emit NFTMinted(recipient, currentTokenId, uri);
     }
 
+    /// @notice Returns the metadata URI for a given token
+    /// @param tokenId ID of the token
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
@@ -94,6 +108,23 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         return _tokenURIs[tokenId];
     }
 
+    /// @notice Updates the URI of a specific token (only callable by owner)
+    /// @dev Use this in case of IPFS node migration or metadata hosting changes
+    /// @param tokenId ID of the token to update
+    /// @param newUri New metadata URI to assign
+    function updateTokenURI(
+        uint256 tokenId,
+        string memory newUri
+    ) public onlyOwner {
+        require(
+            bytes(_tokenURIs[tokenId]).length > 0,
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+        _tokenURIs[tokenId] = newUri;
+    }
+
+    /// @notice Withdraws collected funds to a specified address
+    /// @param recipient Address to receive the funds
     function withdrawFunds(
         address payable recipient
     ) public onlyOwner nonReentrant {
@@ -102,14 +133,18 @@ contract PixelBrainerNFTCollection is ERC721, Ownable, ReentrancyGuard {
         recipient.transfer(balance);
     }
 
+    /// @notice Checks if a given URI is still available for assignment
+    /// @param uri Metadata URI to check
     function isURIAvailable(string memory uri) public view returns (bool) {
         return !_existingURIs[uri];
     }
 
+    /// @notice Prevents receiving ETH directly to the contract
     receive() external payable {
         revert("No ETH accepted");
     }
 
+    /// @notice Fallback function to reject unexpected calls
     fallback() external payable {
         revert("Function does not exist");
     }
