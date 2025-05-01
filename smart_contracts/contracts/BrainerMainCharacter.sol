@@ -23,8 +23,11 @@ contract BrainerMainCharacter is ERC721, Ownable, ReentrancyGuard {
     mapping(address => bool) public hasMinted;
 
     string private baseTokenURI;
+    bool public mintingPaused = true; // Minting is paused by default
 
     event CharacterMinted(address indexed user, uint256 indexed tokenId);
+    event MintingPaused();
+    event MintingResumed();
 
     constructor(
         address _brnrToken,
@@ -41,8 +44,21 @@ contract BrainerMainCharacter is ERC721, Ownable, ReentrancyGuard {
         baseTokenURI = _baseURI;
     }
 
+    /// @notice Pauses the minting functionality (owner only)
+    function pauseMinting() external onlyOwner {
+        mintingPaused = true;
+        emit MintingPaused();
+    }
+
+    /// @notice Resumes the minting functionality (owner only)
+    function resumeMinting() external onlyOwner {
+        mintingPaused = false;
+        emit MintingResumed();
+    }
+
     /// @notice Allows a user to mint their Main Character NFT under one of 3 conditions
     function mintCharacter() external payable nonReentrant {
+        require(!mintingPaused, "Minting is currently paused");
         require(tx.origin == msg.sender, "Contracts not allowed");
         require(!hasMinted[msg.sender], "You already minted your character");
 
