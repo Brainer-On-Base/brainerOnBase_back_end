@@ -41,7 +41,7 @@ exports.getAllNFTs = async (req, res) => {
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      results: nfts,
+      data: nfts,
     });
   } catch (err) {
     console.error("❌ Error fetching NFTs:", err.message);
@@ -52,6 +52,7 @@ exports.getAllNFTs = async (req, res) => {
 exports.getNFTById = async (req, res) => {
   try {
     const { tokenId } = req.params;
+    console.log("Fetching NFT with tokenId:", tokenId);
     const nft = await NFT.findOne({ tokenId: parseInt(tokenId) });
 
     if (!nft) {
@@ -93,7 +94,7 @@ exports.createOrUpdateNFT = async (req, res) => {
         name,
         image,
         attributes,
-        metadata,
+        walletAddress,
       },
       { upsert: true, new: true }
     );

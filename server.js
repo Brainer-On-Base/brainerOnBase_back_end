@@ -39,10 +39,10 @@ app.get("/", (req, res) => {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRIGHT STATS</title>
+    <title>BRAINER ON BASE</title>
   </head>
   <body>
-    BIENVENIDO A BRIGHT STATS
+    BRAINER ON BASE
   </body>
   </html>`);
 });
@@ -54,4 +54,4 @@ app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
 
-module.exports = app; // Exportas 'app' si necesitas utilizarla en otro archivo, como tests o para un despliegue modular.
+module.exports = app;
