@@ -49,11 +49,23 @@ exports.getAllNFTs = async (req, res) => {
   }
 };
 
+exports.getNFTQuantityMinted = async (req, res) => {
+  try {
+    const minted = await NFT.countDocuments({ minted: true });
+    res.status(200).json({
+      success: true,
+      minted,
+    });
+  } catch (err) {
+    console.error("❌ Error fetching NFT quantity:", err.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 exports.getNFTById = async (req, res) => {
   try {
     const { tokenId } = req.params;
-    console.log("Fetching NFT with tokenId:", tokenId);
-    const nft = await NFT.findOne({ tokenId: parseInt(tokenId) });
+    const nft = await NFT.findOne({ tokenId: tokenId });
 
     if (!nft) {
       return res.status(404).json({ success: false, message: "NFT not found" });
