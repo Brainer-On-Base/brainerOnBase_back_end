@@ -78,7 +78,7 @@ exports.getNFTById = async (req, res) => {
   }
 };
 
-exports.createOrUpdateNFT = async (req, res) => {
+exports.mintNFT = async (req, res) => {
   try {
     const { tokenId, name, image, attributes, metadata, walletAddress } =
       req.body;
