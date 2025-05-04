@@ -80,24 +80,16 @@ exports.getNFTById = async (req, res) => {
 
 exports.mintNFT = async (req, res) => {
   try {
-    const { tokenId, name, image, attributes, metadata, walletAddress } =
-      req.body;
+    const { tokenId, name, image, attributes, owner, mintedBy } = req.body;
 
-    if (!tokenId || !walletAddress) {
-      return res.status(400).json({
-        success: false,
-        message: "tokenId and walletAddress are required",
-      });
-    }
+    // const ownerOnChain = await nftContract.ownerOf(tokenId);
 
-    const ownerOnChain = await nftContract.ownerOf(tokenId);
-
-    if (ownerOnChain.toLowerCase() !== walletAddress.toLowerCase()) {
-      return res.status(403).json({
-        success: false,
-        message: "Wallet is not the owner of this NFT",
-      });
-    }
+    // if (ownerOnChain.toLowerCase() !== owner.toLowerCase()) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Wallet is not the owner of this NFT",
+    //   });
+    // }
 
     const nft = await NFT.findOneAndUpdate(
       { tokenId },
@@ -106,7 +98,9 @@ exports.mintNFT = async (req, res) => {
         name,
         image,
         attributes,
-        walletAddress,
+        owner,
+        mintedBy,
+        tokenURI: `https://braineronbase.com/ipfs/QmZd9RMaxg7HhQNxLmbmJFCU7AC55eZ4F44FViZYb8yrmk/${tokenId}.json`,
       },
       { upsert: true, new: true }
     );
