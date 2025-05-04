@@ -12,20 +12,31 @@ const nftContract = new ethers.Contract(
   BRAINER_BPC_NFT_ABI_CONTRACT.abi,
   provider
 );
-
 exports.getAllNFTs = async (req, res) => {
   try {
     const { page = 1, limit = 50, minted, ...filters } = req.query;
     const query = {};
 
+    // ✅ Asegurarse que sea booleano real
     if (minted !== undefined) {
       query.minted = minted === "true";
     }
 
-    if (Object.keys(filters).length) {
+    // ✅ Limpiar filtros vacíos o "All"
+    const activeFilters = Object.entries(filters).filter(
+      ([_, value]) => value && value !== "All" && value.trim() !== ""
+    );
+
+    console.log("activeFilters", activeFilters);
+    // ✅ Solo si hay filtros reales
+
+    if (activeFilters.length > 0) {
       query.attributes = {
-        $all: Object.entries(filters).map(([trait, value]) => ({
-          $elemMatch: { trait_type: trait, value },
+        $all: activeFilters.map(([trait, value]) => ({
+          $elemMatch: {
+            trait_type: trait,
+            value: value.trim(), // limpieza de espacios
+          },
         })),
       };
     }
