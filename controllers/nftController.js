@@ -27,9 +27,7 @@ exports.getAllNFTs = async (req, res) => {
       ([_, value]) => value && value !== "All" && value.trim() !== ""
     );
 
-    console.log("activeFilters", activeFilters);
     // ✅ Solo si hay filtros reales
-
     if (activeFilters.length > 0) {
       query.attributes = {
         $all: activeFilters.map(([trait, value]) => ({
