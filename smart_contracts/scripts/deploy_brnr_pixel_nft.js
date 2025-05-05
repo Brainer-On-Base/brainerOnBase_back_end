@@ -12,15 +12,24 @@ async function main() {
     "PixelBrainerNFTCollection"
   );
 
-  const maxSupply = 50;
+  // 🔧 Parámetros del contrato
+  const maxSupply = 5;
   const mintPrice = ethers.parseEther("0.001"); // 0.001 ETH
+
+  // 🔧 URI base (¡terminar en /!)
   const baseURI =
-    "https://braineronbase.com/ipfs/QmeBaKmJaqx3i1T8cBBaTT1k84wYVvncTHpXL2LVN84sW4/";
+    "https://braineronbase.com/ipfs/QmbdtLbzVDjc8gqy6UjxCmBK2niTTW7FGs2RLiXxZYDmMM/";
+
+  // 🚀 Crear array de URIs
+  const uris = Array.from(
+    { length: maxSupply },
+    (_, i) => `${baseURI}${i}.json`
+  );
 
   const pixelBrainer = await PixelBrainerCollection.deploy(
     maxSupply,
     mintPrice,
-    baseURI
+    uris
   );
 
   await pixelBrainer.waitForDeployment();

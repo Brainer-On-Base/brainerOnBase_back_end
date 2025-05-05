@@ -1,5 +1,5 @@
 const BRAINER_BPC_NFT_MINT_CONTRACT_ADDRESS =
-  "0x137D8634ed6bBD1dc4e791562F904c80BF195A0a";
+  "0xfBd6ab09948c875160Da22C24327a53Bc7037A97";
 const BRAINER_BPC_NFT_ABI_CONTRACT = {
   abi: [
     {
@@ -12,11 +12,6 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
         {
           internalType: "uint256",
           name: "_mintPrice",
-          type: "uint256",
-        },
-        {
-          internalType: "uint256",
-          name: "_transferFeePercentage",
           type: "uint256",
         },
         {
@@ -214,31 +209,6 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
         {
           indexed: true,
           internalType: "address",
-          name: "recipient",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "tokenId",
-          type: "uint256",
-        },
-        {
-          indexed: false,
-          internalType: "string",
-          name: "uri",
-          type: "string",
-        },
-      ],
-      name: "NFTMinted",
-      type: "event",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
           name: "previousOwner",
           type: "address",
         },
@@ -278,23 +248,8 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
       type: "event",
     },
     {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      name: "_tokenURIs",
-      outputs: [
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      stateMutability: "payable",
+      type: "fallback",
     },
     {
       inputs: [
@@ -366,43 +321,6 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
       type: "function",
     },
     {
-      inputs: [],
-      name: "getMintPrice",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "start",
-          type: "uint256",
-        },
-        {
-          internalType: "uint256",
-          name: "end",
-          type: "uint256",
-        },
-      ],
-      name: "getTokenURIs",
-      outputs: [
-        {
-          internalType: "string[]",
-          name: "",
-          type: "string[]",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
       inputs: [
         {
           internalType: "address",
@@ -416,25 +334,6 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
         },
       ],
       name: "isApprovedForAll",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "string",
-          name: "uri",
-          type: "string",
-        },
-      ],
-      name: "isURIAvailable",
       outputs: [
         {
           internalType: "bool",
@@ -676,19 +575,6 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
       type: "function",
     },
     {
-      inputs: [],
-      name: "transferFeePercentage",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
       inputs: [
         {
           internalType: "address",
@@ -736,6 +622,10 @@ const BRAINER_BPC_NFT_ABI_CONTRACT = {
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",
+    },
+    {
+      stateMutability: "payable",
+      type: "receive",
     },
   ],
 };

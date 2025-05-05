@@ -17,40 +17,48 @@ exports.getAllNFTs = async (req, res) => {
     const { page = 1, limit = 50, minted, ...filters } = req.query;
     const query = {};
 
-    // ✅ Asegurarse que sea booleano real
+    // Filtrar por si está minteado
     if (minted !== undefined) {
       query.minted = minted === "true";
     }
 
-    // ✅ Limpiar filtros vacíos o "All"
+    // Limpiar filtros vacíos o "All"
     const activeFilters = Object.entries(filters).filter(
       ([_, value]) => value && value !== "All" && value.trim() !== ""
     );
 
-    // ✅ Solo si hay filtros reales
     if (activeFilters.length > 0) {
       query.attributes = {
         $all: activeFilters.map(([trait, value]) => ({
           $elemMatch: {
             trait_type: trait,
-            value: value.trim(), // limpieza de espacios
+            value: value.trim(),
           },
         })),
       };
     }
 
-    const total = await NFT.countDocuments(query);
-    const nfts = await NFT.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit))
-      .sort({ tokenId: 1 });
+    // Buscar documentos sin paginar para ordenar bien primero
+    const allNFTs = await NFT.find(query);
+
+    // Ordenar por número final de tokenURI (el XX de XX.json)
+    const sortedNFTs = allNFTs.sort((a, b) => {
+      const getJsonIndex = (uri) => {
+        const match = uri?.match(/(\d+)\.json$/);
+        return match ? parseInt(match[1]) : Infinity;
+      };
+      return getJsonIndex(a.tokenURI) - getJsonIndex(b.tokenURI);
+    });
+
+    // Aplicar paginación después del sort
+    const paginatedNFTs = sortedNFTs.slice((page - 1) * limit, page * limit);
 
     res.status(200).json({
       success: true,
-      total,
+      total: sortedNFTs.length,
       page: parseInt(page),
       limit: parseInt(limit),
-      data: nfts,
+      data: paginatedNFTs,
     });
   } catch (err) {
     console.error("❌ Error fetching NFTs:", err.message);
@@ -89,11 +97,11 @@ exports.getNFTById = async (req, res) => {
 
 exports.mintNFT = async (req, res) => {
   try {
-    const { tokenId, name, image, attributes, owner, mintedBy } = req.body;
+    const { tokenId, name, image, attributes, mintedBy } = req.body;
 
     // const ownerOnChain = await nftContract.ownerOf(tokenId);
 
-    // if (ownerOnChain.toLowerCase() !== owner.toLowerCase()) {
+    // if (ownerOnChain.toLowerCase() !== mintedBy.toLowerCase()) {
     //   return res.status(403).json({
     //     success: false,
     //     message: "Wallet is not the owner of this NFT",
@@ -107,7 +115,6 @@ exports.mintNFT = async (req, res) => {
         name,
         image,
         attributes,
-        owner,
         mintedBy,
         tokenURI: `https://braineronbase.com/ipfs/QmZd9RMaxg7HhQNxLmbmJFCU7AC55eZ4F44FViZYb8yrmk/${tokenId}.json`,
       },
