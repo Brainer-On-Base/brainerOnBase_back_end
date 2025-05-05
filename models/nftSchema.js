@@ -7,6 +7,7 @@ const nftSchema = new mongoose.Schema({
   minted: { type: Boolean, default: false },
   mintedBy: { type: String, default: null },
   tokenURI: { type: String, default: null },
+  uriId: { type: Number, default: null, unique: true },
   attributes: [
     {
       trait_type: { type: String, required: true },

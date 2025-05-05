@@ -13,7 +13,7 @@ async function main() {
   );
 
   // 🔧 Parámetros del contrato
-  const maxSupply = 5;
+  const maxSupply = 50;
   const mintPrice = ethers.parseEther("0.001"); // 0.001 ETH
 
   // 🔧 URI base (¡terminar en /!)
