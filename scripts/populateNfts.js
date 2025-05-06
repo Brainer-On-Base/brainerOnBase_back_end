@@ -1,5 +1,3 @@
-// scripts/initEmptyNFTs.js
-
 require("dotenv").config();
 const mongoose = require("mongoose");
 const NFT = require("../models/nftSchema");
@@ -16,13 +14,19 @@ async function connectDB() {
 }
 
 async function createEmptyNFTs() {
+  // Limpieza previa opcional
+  await NFT.deleteMany({ $or: [{ tokenId: null }, { uriId: null }] });
+
   for (let i = 0; i < TOTAL; i++) {
     const exists = await NFT.findOne({ tokenId: i });
     if (!exists) {
-      await NFT.create({ tokenId: i });
+      await NFT.create({ tokenId: i, uriId: i });
       console.log(`🧠 Created empty NFT ${i}`);
+    } else {
+      console.log(`⚠️ NFT ${i} already exists`);
     }
   }
+
   console.log("🎉 Finished creating empty NFTs");
   process.exit(0);
 }

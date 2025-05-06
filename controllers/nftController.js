@@ -43,7 +43,7 @@ exports.getAllNFTs = async (req, res) => {
     const nfts = await NFT.find(query)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .sort({ tokenId: 1 });
+      .sort({ uriId: 1 });
 
     res.status(200).json({
       success: true,
@@ -73,8 +73,8 @@ exports.getNFTQuantityMinted = async (req, res) => {
 
 exports.getNFTById = async (req, res) => {
   try {
-    const { tokenId } = req.params;
-    const nft = await NFT.findOne({ tokenId: tokenId });
+    const { uriId } = req.params;
+    const nft = await NFT.findOne({ uriId: uriId });
 
     if (!nft) {
       return res.status(404).json({ success: false, message: "NFT not found" });
@@ -92,6 +92,7 @@ exports.mintNFT = async (req, res) => {
     const { tokenId, name, image, attributes, mintedBy, tokenURI, uriId } =
       req.body;
 
+    // 1. Validar que el tokenId le pertenezca al wallet que mintió
     // const ownerOnChain = await nftContract.ownerOf(tokenId);
 
     // if (ownerOnChain.toLowerCase() !== mintedBy.toLowerCase()) {
@@ -101,21 +102,54 @@ exports.mintNFT = async (req, res) => {
     //   });
     // }
 
-    const nft = await NFT.findOneAndUpdate(
-      { tokenId },
-      {
-        minted: true,
-        name,
-        image,
-        attributes,
-        mintedBy,
-        tokenURI,
-        uriId,
-      },
-      { upsert: true, new: true }
-    );
+    // 1. Buscar si hay conflicto de uriId
+    const uriConflict = await NFT.findOne({ uriId });
 
-    res.status(200).json({ success: true, data: nft });
+    // 2. Obtener el documento actual (el que vas a actualizar con ese uriId)
+    const currentNFT = await NFT.findOne({ tokenId });
+    const previousUriId = currentNFT?.uriId ?? null;
+
+    // 3. Si hay conflicto y no es el mismo tokenId, hay que hacer swap
+    if (uriConflict && uriConflict.tokenId !== tokenId) {
+      // a. Liberar temporalmente el uriId del que lo tiene actualmente
+      await NFT.findByIdAndUpdate(uriConflict._id, { uriId: null });
+
+      // b. Hacer el update con el nuevo uriId (ya libre)
+      await NFT.findOneAndUpdate(
+        { tokenId },
+        {
+          minted: true,
+          name,
+          image,
+          attributes,
+          mintedBy,
+          tokenURI,
+          uriId,
+        },
+        { upsert: true, new: true }
+      );
+
+      // c. Asignar el uriId anterior al documento que quedó sin uriId
+      await NFT.findByIdAndUpdate(uriConflict._id, { uriId: previousUriId });
+    } else {
+      // No hay conflicto, actualizar directamente
+      await NFT.findOneAndUpdate(
+        { tokenId },
+        {
+          minted: true,
+          name,
+          image,
+          attributes,
+          mintedBy,
+          tokenURI,
+          uriId,
+        },
+        { upsert: true, new: true }
+      );
+    }
+
+    const updatedNFT = await NFT.findOne({ tokenId });
+    res.status(200).json({ success: true, data: updatedNFT });
   } catch (err) {
     console.error("❌ Error saving NFT:", err.message);
     res.status(500).json({ success: false, message: "Server error" });
