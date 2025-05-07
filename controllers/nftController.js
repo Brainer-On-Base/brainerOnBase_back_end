@@ -92,16 +92,6 @@ exports.mintNFT = async (req, res) => {
     const { tokenId, name, image, attributes, mintedBy, tokenURI, uriId } =
       req.body;
 
-    // 1. Validar que el tokenId le pertenezca al wallet que mintió
-    // const ownerOnChain = await nftContract.ownerOf(tokenId);
-
-    // if (ownerOnChain.toLowerCase() !== mintedBy.toLowerCase()) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: "Wallet is not the owner of this NFT",
-    //   });
-    // }
-
     // 1. Buscar si hay conflicto de uriId
     const uriConflict = await NFT.findOne({ uriId });
 

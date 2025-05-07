@@ -1,105 +1,94 @@
-## 🧠 `PixelBrainerNFTCollection` – Smart Contract
+# 🧠 PixelBrainerNFTCollection – Smart Contract
 
-ERC-721 NFT collection with limited minting, unique IPFS-hosted metadata, and dynamic phase-based pricing.  
-Secure and production-ready contract.
-
----
-
-### 📌 General Description
-
-- 🔗 **Name**: PixelBrainerCollection
-- 🧠 **Symbol**: PBC1
-- 🧪 **Standard**: ERC721 (OpenZeppelin)
-- 🧱 **Distribution**: `maxSupply` unique NFTs
-- 🌐 **Metadata**: Randomly assigned URIs from IPFS
-- 💰 **Mint**: Dynamic pricing based on minting phase (quartiles)
-- ⛔ **Limit**: 2 NFTs per wallet
-- 🔒 **Anti-bot**: No minting from smart contracts
-- 🔐 **Owner**: Can withdraw contract funds
-- 🛑 **Auto-pause**: Minting deactivates automatically when supply is reached
+ERC-721 NFT collection con minteo limitado, URIs únicas desde el deploy, sin fase de reveal y con protección antibots.  
+Contrato simple, sólido y listo para producción.
 
 ---
 
-### ⚙️ Constructor
+## 📌 Descripción General
+
+- 🔗 **Nombre**: PixelBrainerCollection
+- 🧠 **Símbolo**: PBC1
+- 🧪 **Estándar**: ERC721 (OpenZeppelin)
+- 🧱 **Supply máximo**: `maxSupply` NFTs únicos
+- 🌐 **Metadata**: URIs asignadas aleatoriamente desde el constructor (sin reveal)
+- 💰 **Precio de mint**: Fijo (`mintPrice`)
+- ⛔ **Límite**: Máximo 2 NFTs por wallet
+- 🛑 **Antibots**: No permite mintear desde contratos
+- 🔐 **Owner**: Puede retirar los fondos
+- 🔒 **Seguridad**: Protegido con `ReentrancyGuard`
+- 🧯 **Auto-stop**: El mint se desactiva automáticamente al alcanzar el límite
+
+---
+
+## ⚙️ Constructor
 
 ```solidity
 constructor(
   uint256 _maxSupply,
   uint256 _mintPrice,
-  uint256 _transferFeePercentage,
   string[] memory uris
 )
 ```
 
-- `maxSupply`: Total number of NFTs
-- `mintPrice`: Base price (in wei)
-- `transferFeePercentage`: Reserved field (currently unused)
-- `uris`: Array of unique IPFS metadata (must match `maxSupply`)
+- `maxSupply`: Total máximo de NFTs a emitir
+- `mintPrice`: Precio por NFT en wei
+- `uris`: Array de URIs únicas (debe coincidir en cantidad con `maxSupply`)
 
 ---
 
-### 💻 Public Functions
+## 💻 Funciones Públicas
 
-| Function                 | Description                                               |
-| ------------------------ | --------------------------------------------------------- |
-| `mintNFT(address)`       | Mints an NFT for the specified address (max 2 per wallet) |
-| `getMintPrice()`         | Returns the current price based on phase                  |
-| `isMintingActive()`      | Returns `true` if minting is still open                   |
-| `tokenURI(tokenId)`      | Returns the metadata URI for a token                      |
-| `isURIAvailable(uri)`    | Checks if a URI has already been used                     |
-| `withdrawFunds(address)` | Owner can withdraw contract balance                       |
+| Función                  | Descripción                                                 |
+| ------------------------ | ----------------------------------------------------------- |
+| `mintNFT(address)`       | Minterea un NFT para la address indicada (máx 2 por wallet) |
+| `tokenURI(uint256)`      | Devuelve la URI asignada al token                           |
+| `withdrawFunds(address)` | Owner puede retirar el balance del contrato                 |
 
 ---
 
-### 🧠 Pricing by Phase
+## 🔐 Restricciones y Seguridad
 
-Base price adjusts based on quartiles of the `maxSupply`:
-
-| Phase | Supply Minted | Price               |
-| ----- | ------------- | ------------------- |
-| 1     | 0%–25%        | 100% of `mintPrice` |
-| 2     | 25%–50%       | +15%                |
-| 3     | 50%–75%       | +30%                |
-| 4     | 75%–100%      | +45%                |
+- ✅ **EOAs only**: Solo wallets externas pueden interactuar (`tx.origin == msg.sender`)
+- ✅ **Limitado**: Cada wallet puede mintear hasta 2 NFTs
+- ✅ **Fondos**: Solo el owner puede retirar el balance del contrato
+- ✅ **Anti-spam**: Rechaza ETH directo y llamadas a funciones inexistentes
+- ✅ **Randomización**: Swap-and-pop para asignar URIs únicas sin repetición
 
 ---
 
-### 🚫 Restrictions
+## 🛑 Recepción de ETH
 
-- Only externally owned accounts (EOAs) can mint (no contracts)
-- Maximum of 2 NFTs per wallet
-- Minting **automatically disables** when `maxSupply` is reached
+- ❌ `receive()` revertido: evita que se mande ETH sin intención
+- ❌ `fallback()` revertido: bloquea llamadas a funciones inválidas
 
 ---
 
-### 🚀 Deployment (Hardhat)
+## 🚀 Deployment (ejemplo con Hardhat)
 
 ```bash
 npx hardhat run scripts/deploy.js --network base
 ```
 
-Example constructor usage:
-
 ```js
 const factory = await ethers.getContractFactory("PixelBrainerNFTCollection");
 const contract = await factory.deploy(
-  8000,
-  ethers.parseEther("0.01"), // 0.01 ETH
-  0, // transfer fee currently unused
+  5000,
+  ethers.parseEther("0.02"), // 0.01 ETH
   metadataURIsArray
 );
 ```
 
 ---
 
-### 🧬 TODO / Future Features (optional)
+## 🧬 Futuras mejoras (opcional)
 
-- Support for token burning (`burn`)
-- Integration with games or leveling systems
-- `transferWithFee()` function if fee system is added later
+- 🔥 Función de `burn` para NFTs
+- 🕹 Integración con minijuegos o avatares personalizables
+- 📦 Reveal opcional (si se decide hacer una versión 2)
 
 ---
 
-### 🔐 Audited by: MasterBrainer & ChatGPT v4 😎
+## ✅ Auditado por: Fede & ChatGPT v4 😎
 
-_Engineered for brainer believers. Mint it or miss it._
+> _No brain, no gain. Mint like a real Brainer._
