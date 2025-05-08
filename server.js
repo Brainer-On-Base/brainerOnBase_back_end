@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config({ path: "variables.env" });
+require("dotenv").config({ path: "./variables.env" });
 const routes = require("./routes");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -9,19 +9,13 @@ const path = require("path");
 
 const app = express();
 
-console.log(process.env.DATABASE_URL);
-
 mongoose
-  .connect(process.env.DB_URL)
+  .connect(DATABASE_URL)
   .then(() => console.log("Conectado a MongoDB"))
   .catch((err) => console.error("Error al conectar a MongoDB", err));
 
 const corsOptions = {
-  origin: [
-    "http://192.168.100.27:5173",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-  ],
+  origin: ["https://www.braineronbase.com", "http://localhost:5173"],
   credentials: true,
 };
 
@@ -32,8 +26,10 @@ app.use(cookieParser());
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// Define la ruta para la página principal que servirá la etiqueta de verificación
-app.get("/", (req, res) => {
+// 👇👇 ESTO ES CLAVE
+app.use("/api", routes());
+
+app.get("/api", (req, res) => {
   res.send(`<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -47,11 +43,11 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-app.use("/", routes());
+app.get("/api/ping", (req, res) => {
+  res.json({ message: "pong" });
+});
 
-const PORT = DATABASE_PORT || 3001;
+const PORT = DATABASE_PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
-
-module.exports = app;

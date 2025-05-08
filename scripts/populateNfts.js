@@ -1,8 +1,9 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const NFT = require("../models/nftSchema");
+const { DATABASE_URL } = require("../CONSTANTS");
 
-const MONGO_URI = "mongodb://localhost:27017/brainerOnBase";
+const MONGO_URI = DATABASE_URL;
 const TOTAL = 50;
 
 async function connectDB() {
