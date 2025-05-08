@@ -15,7 +15,12 @@ mongoose
   .catch((err) => console.error("Error al conectar a MongoDB", err));
 
 const corsOptions = {
-  origin: ["https://www.braineronbase.com", "http://localhost:5173"],
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://www.braineronbase.com",
+    "https://braineronbase.com", // <-- agregá este
+  ],
   credentials: true,
 };
 
