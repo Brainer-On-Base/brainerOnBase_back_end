@@ -54,7 +54,9 @@ exports.getAllNFTs = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error fetching NFTs:", err.message);
-    res.status(500).json({ success: false, message: "Server error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", err: err.message });
   }
 };
 
