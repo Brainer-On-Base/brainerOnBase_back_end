@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/userSchema");
 
 // Crear un nuevo usuario (si no existe)
 const createUser = async (req, res) => {
