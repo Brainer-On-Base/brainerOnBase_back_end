@@ -4,13 +4,12 @@ const router = express.Router();
 
 //ANCHOR - Imports
 const nftRoutes = require("./nft/routes");
+const userRoutes = require("./user/userRoutes");
 
 //ANCHOR - Module Export
 module.exports = function () {
-  // AUTH
-
-  // NFTS
   router.use(nftRoutes);
+  router.use(userRoutes);
 
   return router;
 };

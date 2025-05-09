@@ -19,7 +19,7 @@ const corsOptions = {
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://www.braineronbase.com",
-    "https://braineronbase.com", // <-- agregá este
+    "https://braineronbase.com",
   ],
   credentials: true,
 };
