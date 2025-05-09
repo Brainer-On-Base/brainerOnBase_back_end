@@ -19,9 +19,10 @@ scp -r `
   "$localBase\package-lock.json" `
   "$localBase\server.js" `
   "$localBase\variables.env" `
-  "$remoteUser@$remoteHost:$remotePath"
+  "${remoteUser}@${remoteHost}:${remotePath}"  # <--- pegado acá
+
+# Reiniciar la app en el servidor usando SSH y PM2
+ssh "${remoteUser}@${remoteHost}" "pm2 restart brainer-api && echo '✅ PM2 app restarted'"
+
 
 Write-Host "`n✅ Deploy terminado. Revisá el servidor para reiniciar el backend si hace falta." -ForegroundColor Green
-
-
-# Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
