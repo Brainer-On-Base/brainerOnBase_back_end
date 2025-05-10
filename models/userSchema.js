@@ -1,38 +1,51 @@
 const mongoose = require("mongoose");
+const AchievementSchema = require("./Achievement"); // Ajusta el path según tu estructura
 
 const EquippedSchema = new mongoose.Schema({
-  headgear: { type: String, default: null },
-  accessory1: { type: String, default: null },
-  accessory2: { type: String, default: null },
-  hat: { type: String, default: null },
-  background: { type: String, default: null },
-  extra: { type: String, default: null },
+  headgear: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    default: null,
+  },
+  accessory1: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    default: null,
+  },
+  accessory2: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    default: null,
+  },
+  hat: { type: mongoose.Schema.Types.ObjectId, ref: "GameItem", default: null },
+  background: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    default: null,
+  },
+  extra: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    default: null,
+  },
 });
 
 const InventoryItemSchema = new mongoose.Schema({
-  slot: { type: String, required: true }, // Ej: headgear, accessory, etc.
-  itemId: { type: String, required: true }, // ID interno o del NFT
-  name: { type: String }, // Nombre visible (opcional)
-  rarity: {
-    type: String,
-    enum: ["common", "rare", "epic", "legendary"],
-    default: "common",
+  item: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GameItem",
+    required: true,
   },
   equipped: { type: Boolean, default: false },
-  stats: {
-    focusBoost: { type: Number, default: 0 },
-    logicBoost: { type: Number, default: 0 },
-    creativityBoost: { type: Number, default: 0 },
-  },
 });
 
 const StatsSchema = new mongoose.Schema({
   brainPower: { type: Number, default: 100 },
-  focus: { type: Number, default: 20 },
-  memory: { type: Number, default: 20 },
-  logic: { type: Number, default: 20 },
-  creativity: { type: Number, default: 20 },
-  processingSpeed: { type: Number, default: 20 },
+  focus: { type: Number, default: 0 },
+  memory: { type: Number, default: 0 },
+  logic: { type: Number, default: 0 },
+  creativity: { type: Number, default: 0 },
+  processingSpeed: { type: Number, default: 0 },
 });
 
 const UserSchema = new mongoose.Schema({
@@ -47,12 +60,12 @@ const UserSchema = new mongoose.Schema({
   inventory: { type: [InventoryItemSchema], default: () => [] },
 
   mainCharacterNFT: { type: String, default: null },
-  ownedNFTs: [{ type: String }],
   brnrBalance: { type: Number, default: 0 },
   tickets: { type: Number, default: 0 },
-  achievements: [{ type: String }],
+  achievements: [AchievementSchema], // Logros asociados al usuario
+
   equippedItems: { type: EquippedSchema, default: () => ({}) },
-  //   isBanned: { type: Boolean, default: false },
+
   joinedAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });
