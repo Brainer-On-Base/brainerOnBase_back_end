@@ -60,7 +60,6 @@ const UserSchema = new mongoose.Schema({
   inventory: { type: [InventoryItemSchema], default: () => [] },
 
   mainCharacterNFT: { type: String, default: null },
-  brnrBalance: { type: Number, default: 0 },
   tickets: { type: Number, default: 0 },
   achievements: [AchievementSchema], // Logros asociados al usuario
 
