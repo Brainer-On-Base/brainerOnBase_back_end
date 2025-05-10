@@ -1,4 +1,4 @@
-const GameItem = require("../models/GameItem");
+const GameItem = require("../models/gameItemSchema");
 
 // CREATE
 const createGameItem = async (req, res) => {

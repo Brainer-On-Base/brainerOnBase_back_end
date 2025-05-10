@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const AchievementSchema = require("./Achievement"); // Ajusta el path según tu estructura
 
 const EquippedSchema = new mongoose.Schema({
   headgear: {
@@ -39,6 +38,15 @@ const InventoryItemSchema = new mongoose.Schema({
   equipped: { type: Boolean, default: false },
 });
 
+const UnlockedAchievementSchema = new mongoose.Schema({
+  achievement: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Achievement",
+    required: true,
+  },
+  earnedAt: { type: Date, default: Date.now },
+});
+
 const StatsSchema = new mongoose.Schema({
   brainPower: { type: Number, default: 100 },
   focus: { type: Number, default: 0 },
@@ -61,7 +69,7 @@ const UserSchema = new mongoose.Schema({
 
   mainCharacterNFT: { type: String, default: null },
   tickets: { type: Number, default: 0 },
-  achievements: [AchievementSchema], // Logros asociados al usuario
+  achievements: { type: [UnlockedAchievementSchema], default: () => [] },
 
   equippedItems: { type: EquippedSchema, default: () => ({}) },
 

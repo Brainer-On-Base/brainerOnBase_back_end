@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const gameItemController = require("../controllers/gameItemController");
+const gameItemController = require("../../controllers/gameItemController");
 
 router.post("/game-item", gameItemController.createGameItem);
 router.get("/game-items", gameItemController.getAllGameItems);
