@@ -14,6 +14,7 @@ router.put(
 ); //Set main character NFT
 router.put("/user/:wallet/update-stats", userController.assignStatPoints); //Update stats
 router.put("/user/:wallet/reset-stats", userController.resetStats);
+router.put("/user/:wallet/edit", userController.editUser);
 router.get("/leaderboard", userController.getTopUsers);
 router.get("/user/:wallet/achievements", userController.getAchievements);
 

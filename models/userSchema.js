@@ -17,7 +17,7 @@ const EquippedSchema = new mongoose.Schema({
     default: null,
   },
   hat: { type: mongoose.Schema.Types.ObjectId, ref: "GameItem", default: null },
-  background: {
+  weapon: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "GameItem",
     default: null,

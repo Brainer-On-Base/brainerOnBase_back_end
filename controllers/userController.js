@@ -20,6 +20,41 @@ const createUser = async (req, res) => {
   }
 };
 
+const editUser = async (req, res) => {
+  const { wallet } = req.params;
+  const { username, mainCharacterNFT } = req.body;
+
+  // Solo incluir campos definidos
+  const updates = {};
+  if (username !== undefined) updates.username = username;
+  if (mainCharacterNFT !== undefined)
+    updates.mainCharacterNFT = mainCharacterNFT;
+
+  try {
+    const user = await User.findOneAndUpdate({ wallet }, updates, {
+      new: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+        success: false,
+      });
+    }
+
+    res.json({
+      message: "User updated successfully",
+      success: true,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "Error updating user",
+      message: err.message,
+      success: false,
+    });
+  }
+};
+
 const getUserByWallet = async (req, res) => {
   const { wallet } = req.params;
   try {
@@ -284,6 +319,7 @@ const resetStats = async (req, res) => {
     });
   }
 };
+
 const getTopUsers = async (req, res) => {
   try {
     const users = await User.find({})
@@ -334,4 +370,5 @@ module.exports = {
   resetStats,
   getTopUsers,
   getAchievements,
+  editUser,
 };
